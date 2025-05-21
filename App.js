@@ -15,7 +15,6 @@ import Perfil from './src/screens/Perfil';
 
 const Drawer = createDrawerNavigator();
 
-// 👉 Drawer personalizado directamente en App.js
 function CustomDrawerContent(props) {
   return (
     <DrawerContentScrollView {...props}>
