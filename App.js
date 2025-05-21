@@ -14,7 +14,7 @@ import Registro from './src/screens/Registro';
 import Perfil from './src/screens/Perfil';
 
 const Drawer = createDrawerNavigator();
-//Prueba
+
 function CustomDrawerContent(props) {
   return (
     <DrawerContentScrollView {...props}>
