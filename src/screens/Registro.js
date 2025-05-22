@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Box, VStack, Input, Button, Text, Center, Pressable, Image } from 'native-base';
 import { Alert } from 'react-native';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -13,8 +15,14 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    Alert.alert('Registro exitoso', `Bienvenido, ${name}`);
-    navigation.navigate('Login');
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        Alert.alert('Registro exitoso', `Bienvenido, ${name}`);
+        navigation.navigate('IniciarSesion');
+      })
+      .catch(error => {
+        Alert.alert('Error en el registro', error.message);
+      });
   };
 
   return (
@@ -29,7 +37,7 @@ export default function RegisterScreen({ navigation }) {
 
         <Button colorScheme="teal" onPress={handleRegister}>Registrarse</Button>
 
-        <Pressable onPress={() => navigation.navigate('Iniciar Sesion')}>
+        <Pressable onPress={() => navigation.navigate('IniciarSesion')}>
           <Text mt={2} color="teal.500" underline textAlign="center">
             ¿Ya tienes cuenta? Inicia sesión
           </Text>

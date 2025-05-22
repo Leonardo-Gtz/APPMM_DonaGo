@@ -3,20 +3,34 @@ import { NativeBaseProvider, Box, VStack, Input, Button, Text, Center, Image, Pr
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import { Alert } from 'react-native';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { auth } from '../firebase';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function IniciarSesion({ navigation }) {
   const [email, setEmail] = useState('');
+
   const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: 'TU_CLIENT_ID_GOOGLE_AQUI.apps.googleusercontent.com', // 👈 Reemplaza esto
+    expoClientId: 'TU_EXPO_CLIENT_ID',
+    androidClientId: 'TU_ANDROID_CLIENT_ID',
+    iosClientId: 'TU_IOS_CLIENT_ID',
+    webClientId: 'TU_WEB_CLIENT_ID',
   });
 
   useEffect(() => {
     if (response?.type === 'success') {
-      const { authentication } = response;
-      Alert.alert('Inicio de sesión exitoso con Google', `Token: ${authentication.accessToken}`);
-      // Aquí puedes redirigir al dashboard: navigation.navigate('Home');
+      const { id_token } = response.authentication;
+      const credential = GoogleAuthProvider.credential(id_token);
+
+      signInWithCredential(auth, credential)
+        .then(userCredential => {
+          Alert.alert('¡Sesión iniciada!', `Bienvenido ${userCredential.user.email}`);
+          navigation.navigate('Principal');
+        })
+        .catch(error => {
+          Alert.alert('Error', error.message);
+        });
     }
   }, [response]);
 
@@ -26,7 +40,6 @@ export default function IniciarSesion({ navigation }) {
       return;
     }
     Alert.alert('Inicio de sesión', `Bienvenido, ${email}`);
-    // Aquí podrías autenticar contra backend o Firebase
   };
 
   const handleRegistro = () => {
@@ -36,23 +49,27 @@ export default function IniciarSesion({ navigation }) {
   return (
     <Center flex={1} px={4} bg="#fff">
       <VStack space={4} w="100%" maxW="300px" alignItems="center">
-        <Text fontSize="2xl" color= "#9c9c9c" fontWeight="bold">BIENVENIDOS</Text>
+        <Text fontSize="2xl" color="#9c9c9c" fontWeight="bold">BIENVENIDOS</Text>
         <Image source={require('../../assets/DPG.png')} alt="Logo" size="xl" resizeMode="contain" />
         <Text fontSize="sm" color="gray.500">Inicia sesión para continuar</Text>
+
         <Button
-            rounded="full"
-            variant="outline"
-            leftIcon={
-        <Image
-            source={require('../../assets/D.png')}
-            alt="Google"
-            size={5} // Ajusta el tamaño según lo necesites
-        />  }
-        _text={{ fontSize: "md", fontWeight: "bold" }}
-        w="100%"
-        onPress={() => promptAsync()}
-        > Iniciar con Google
+          rounded="full"
+          variant="outline"
+          leftIcon={
+            <Image
+              source={require('../../assets/D.png')}
+              alt="Google"
+              size={5}
+            />
+          }
+          _text={{ fontSize: "md", fontWeight: "bold" }}
+          w="100%"
+          onPress={() => promptAsync()}
+        >
+          Iniciar con Google
         </Button>
+
         <Text color="gray.400">o usa tu cuenta</Text>
         <Input
           placeholder="Correo electrónico"
